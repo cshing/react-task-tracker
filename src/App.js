@@ -43,9 +43,9 @@ function App() {
     const res = await fetch('http://localhost:5000/tasks', {
       method: 'POST',
       headers: {
-        'Content-type': 'application/json'
+        'Content-type': 'application/json',
       },
-      body: JSON.stringify(task)
+      body: JSON.stringify(task),
     })
 
     const data = await res.json()
@@ -61,11 +61,13 @@ function App() {
   // Delete Task
   const deleteTask = async (id) => {
     // console.log('delete', id)
-    await fetch(`http://localhost:5000/tasks/${id}`, {
+    const res = await fetch(`http://localhost:5000/tasks/${id}`, {
       method: 'DELETE'
     })
-
-    setTasks(tasks.filter((task) => task.id !== id))
+    //We should control the response status to decide if we will change the state or not.
+    res.status === 200
+      ? setTasks(tasks.filter((task) => task.id !== id))
+      : alert('Error Deleting This Task')
   }
 
   // Toggle Reminder
@@ -77,15 +79,19 @@ function App() {
 
     const res = await fetch(`http://localhost:5000/tasks/${id}`, {
       method: 'PUT',
-      header: {
-        'Content-type': 'application/json'
+      headers: {
+        'Content-type': 'application/json',
       },
-      body: JSON.stringify(updTask)
+      body: JSON.stringify(updTask),
     })
 
     const data = await res.json()
 
-    setTasks(tasks.map((task) => task.id === id ? { ...task, reminder: !task.reminder } : task))
+    setTasks(
+      tasks.map((task) => 
+        task.id === id ? { ...task, reminder: data.reminder } : task
+      )
+    )
   }
 
   return (
